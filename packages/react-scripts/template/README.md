@@ -16,19 +16,21 @@ You can find the most recent version of this guide [here](https://github.com/fac
 - [Supported Language Features and Polyfills](#supported-language-features-and-polyfills)
 - [Syntax Highlighting in the Editor](#syntax-highlighting-in-the-editor)
 - [Displaying Lint Output in the Editor](#displaying-lint-output-in-the-editor)
+- [Debugging in the Editor](#debugging-in-the-editor)
 - [Changing the Page `<title>`](#changing-the-page-title)
 - [Installing a Dependency](#installing-a-dependency)
 - [Importing a Component](#importing-a-component)
 - [Adding a Stylesheet](#adding-a-stylesheet)
 - [Post-Processing CSS](#post-processing-css)
 - [Adding a CSS Preprocessor (Sass, Less etc.)](#adding-a-css-preprocessor-sass-less-etc)
-- [Adding Images and Fonts](#adding-images-and-fonts)
+- [Adding Images, Fonts, and Files](#adding-images-fonts-and-files)
 - [Using the `public` Folder](#using-the-public-folder)
   - [Changing the HTML](#changing-the-html)
   - [Adding Assets Outside of the Module System](#adding-assets-outside-of-the-module-system)
   - [When to Use the `public` Folder](#when-to-use-the-public-folder)
 - [Using Global Variables](#using-global-variables)
 - [Adding Bootstrap](#adding-bootstrap)
+  - [Using a Custom Theme](#using-a-custom-theme)
 - [Adding Flow](#adding-flow)
 - [Adding Custom Environment Variables](#adding-custom-environment-variables)
   - [Referencing Environment Variables in the HTML](#referencing-environment-variables-in-the-html)
@@ -41,6 +43,7 @@ You can find the most recent version of this guide [here](https://github.com/fac
 - [Proxying API Requests in Development](#proxying-api-requests-in-development)
 - [Using HTTPS in Development](#using-https-in-development)
 - [Generating Dynamic `<meta>` Tags on the Server](#generating-dynamic-meta-tags-on-the-server)
+- [Pre-Rendering into Static HTML Files](#pre-rendering-into-static-html-files)
 - [Injecting Data from the Server into the Page](#injecting-data-from-the-server-into-the-page)
 - [Running Tests](#running-tests)
   - [Filename Conventions](#filename-conventions)
@@ -59,6 +62,8 @@ You can find the most recent version of this guide [here](https://github.com/fac
 - [Developing Components in Isolation](#developing-components-in-isolation)
 - [Making a Progressive Web App](#making-a-progressive-web-app)
 - [Deployment](#deployment)
+  - [Static Server](#static-server)
+  - [Other Solutions](#other-solutions)
   - [Serving Apps with Client-Side Routing](#serving-apps-with-client-side-routing)
   - [Building for Relative Paths](#building-for-relative-paths)
   - [Azure](#azure)
@@ -175,7 +180,7 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 
 ## Supported Language Features and Polyfills
 
-This project supports a superset of the latest JavaScript standard.  
+This project supports a superset of the latest JavaScript standard.<br>
 In addition to [ES6](https://github.com/lukehoban/es6features) syntax features, it also supports:
 
 * [Exponentiation Operator](https://github.com/rwaldron/exponentiation-operator) (ES2016).
@@ -242,20 +247,49 @@ Then add this block to the `package.json` file of your project:
 Finally, you will need to install some packages *globally*:
 
 ```sh
-npm install -g eslint-config-react-app@0.3.0 eslint@3.8.1 babel-eslint@7.0.0 eslint-plugin-react@6.4.1 eslint-plugin-import@2.0.1 eslint-plugin-jsx-a11y@2.2.3 eslint-plugin-flowtype@2.21.0
+npm install -g eslint-config-react-app@0.3.0 eslint@3.8.1 babel-eslint@7.0.0 eslint-plugin-react@6.4.1 eslint-plugin-import@2.0.1 eslint-plugin-jsx-a11y@4.0.0 eslint-plugin-flowtype@2.21.0
 ```
 
 We recognize that this is suboptimal, but it is currently required due to the way we hide the ESLint dependency. The ESLint team is already [working on a solution to this](https://github.com/eslint/eslint/issues/3458) so this may become unnecessary in a couple of months.
+
+## Debugging in the Editor
+
+**This feature is currently only supported by [Visual Studio Code](https://code.visualstudio.com) editor.**
+
+Visual Studio Code supports live-editing and debugging out of the box with Create React App. This enables you as a developer to write and debug your React code without leaving the editor, and most importantly it enables you to have a continuous development workflow, where context switching is minimal, as you don’t have to switch between tools.
+
+You would need to have the latest version of [VS Code](https://code.visualstudio.com) and VS Code [Chrome Debugger Extension](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) installed.
+
+Then add the block below to your `launch.json` file and put it inside the `.vscode` folder in your app’s root directory.
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [{
+    "name": "Chrome",
+    "type": "chrome",
+    "request": "launch",
+    "url": "http://localhost:3000",
+    "webRoot": "${workspaceRoot}/src",
+    "userDataDir": "${workspaceRoot}/.vscode/chrome",
+    "sourceMapPathOverrides": {
+      "webpack:///src/*": "${webRoot}/*"
+    }
+  }]
+}
+```
+
+Start your app by running `npm start`, and start debugging in VS Code by pressing `F5` or by clicking the green debug icon. You can now write code, set breakpoints, make changes to the code, and debug your newly modified code—all from your editor.
 
 ## Changing the Page `<title>`
 
 You can find the source HTML file in the `public` folder of the generated project. You may edit the `<title>` tag in it to change the title from “React App” to anything else.
 
-Note that normally you wouldn't edit files in the `public` folder very often. For example, [adding a stylesheet](#adding-a-stylesheet) is done without touching the HTML.
+Note that normally you wouldn’t edit files in the `public` folder very often. For example, [adding a stylesheet](#adding-a-stylesheet) is done without touching the HTML.
 
 If you need to dynamically update the page title based on the content, you can use the browser [`document.title`](https://developer.mozilla.org/en-US/docs/Web/API/Document/title) API. For more complex scenarios when you want to change the title from React components, you can use [React Helmet](https://github.com/nfl/react-helmet), a third party library.
 
-Finally, if you use a custom server for your app in production and want to modify the title before it gets sent to the browser, you can follow advice in [this section](#generating-dynamic-meta-tags-on-the-server).
+If you use a custom server for your app in production and want to modify the title before it gets sent to the browser, you can follow advice in [this section](#generating-dynamic-meta-tags-on-the-server). Alternatively, you can pre-build each page as a static HTML file which then loads the JavaScript bundle, which is covered [here](#pre-rendering-into-static-html-files).
 
 ## Installing a Dependency
 
@@ -396,15 +430,17 @@ Then in `package.json`, add the following lines to `scripts`:
 ```diff
    "scripts": {
 +    "build-css": "node-sass src/ -o src/",
-+    "watch-css": "npm run build-css && node-sass src/ -o src/ --watch",
++    "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",
      "start": "react-scripts start",
      "build": "react-scripts build",
      "test": "react-scripts test --env=jsdom",
 ```
 
->Note: To use a different preprocessor, replace `build-css` and `watch-css` commands according to your preprocessor’s documentation. 
+>Note: To use a different preprocessor, replace `build-css` and `watch-css` commands according to your preprocessor’s documentation.
 
 Now you can rename `src/App.css` to `src/App.scss` and run `npm run watch-css`. The watcher will find every Sass file in `src` subdirectories, and create a corresponding CSS file next to it, in our case overwriting `src/App.css`. Since `src/App.js` still imports `src/App.css`, the styles become a part of your application. You can now edit `src/App.scss`, and `src/App.css` will be regenerated.
+
+To share variables between Sass files, you can use Sass imports. For example, `src/App.scss` and other component style files could include `@import "./shared.scss";` with variable definitions.
 
 At this point you might want to remove all CSS files from the source control, and add `src/**/*.css` to your `.gitignore` file. It is generally a good practice to keep the build products outside of the source control.
 
@@ -419,7 +455,7 @@ Then we can change `start` and `build` scripts to include the CSS preprocessor c
 ```diff
    "scripts": {
      "build-css": "node-sass src/ -o src/",
-     "watch-css": "npm run build-css && node-sass src/ -o src/ --watch",
+     "watch-css": "npm run build-css && node-sass src/ -o src/ --watch --recursive",
 -    "start": "react-scripts start",
 -    "build": "react-scripts build",
 +    "start-js": "react-scripts start",
@@ -432,11 +468,13 @@ Then we can change `start` and `build` scripts to include the CSS preprocessor c
 
 Now running `npm start` and `npm run build` also builds Sass files. Note that `node-sass` seems to have an [issue recognizing newly created files on some systems](https://github.com/sass/node-sass/issues/1891) so you might need to restart the watcher when you create a file until it’s resolved.
 
-## Adding Images and Fonts
+## Adding Images, Fonts, and Files
 
 With Webpack, using static assets like images and fonts works similarly to CSS.
 
-You can **`import` an image right in a JavaScript module**. This tells Webpack to include that image in the bundle. Unlike CSS imports, importing an image or a font gives you a string value. This value is the final image path you can reference in your code.
+You can **`import` a file right in a JavaScript module**. This tells Webpack to include that file in the bundle. Unlike CSS imports, importing a file gives you a string value. This value is the final path you can reference in your code, e.g. as the `src` attribute of an image or the `href` of a link to a PDF.
+
+To reduce the number of requests to the server, importing images that are less than 10,000 bytes returns a [data URI](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs) instead of a path. This applies to the following file extensions: bmp, gif, jpg, jpeg, and png. SVG files are excluded due to [#1153](https://github.com/facebookincubator/create-react-app/issues/1153).
 
 Here is an example:
 
@@ -553,18 +591,20 @@ Alternatively, you can force the linter to ignore any line by adding `// eslint-
 
 You don’t have to use [React Bootstrap](https://react-bootstrap.github.io) together with React but it is a popular library for integrating Bootstrap with React apps. If you need it, you can integrate it with Create React App by following these steps:
 
-Install React Bootstrap and Bootstrap from NPM. React Bootstrap does not include Bootstrap CSS so this needs to be installed as well:
+Install React Bootstrap and Bootstrap from npm. React Bootstrap does not include Bootstrap CSS so this needs to be installed as well:
 
 ```
 npm install react-bootstrap --save
 npm install bootstrap@3 --save
 ```
 
-Import Bootstrap CSS and optionally Bootstrap theme CSS in the ```src/index.js``` file:
+Import Bootstrap CSS and optionally Bootstrap theme CSS in the beginning of your ```src/index.js``` file:
 
 ```js
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap/dist/css/bootstrap-theme.css';
+// Put any other imports below so that CSS from your
+// components takes precedence over default styles.
 ```
 
 Import required React Bootstrap components within ```src/App.js``` file or your custom component files:
@@ -575,6 +615,17 @@ import { Navbar, Jumbotron, Button } from 'react-bootstrap';
 
 Now you are ready to use the imported React Bootstrap components within your component hierarchy defined in the render method. Here is an example [`App.js`](https://gist.githubusercontent.com/gaearon/85d8c067f6af1e56277c82d19fd4da7b/raw/6158dd991b67284e9fc8d70b9d973efe87659d72/App.js) redone using React Bootstrap.
 
+### Using a Custom Theme
+
+Sometimes you might need to tweak the visual styles of Bootstrap (or equivalent package).<br>
+We suggest the following approach:
+
+* Create a new package that depends on the package you wish to customize, e.g. Bootstrap.
+* Add the necessary build steps to tweak the theme, and publish your package on npm.
+* Install your own theme npm package as a dependency of your app.
+
+Here is an example of adding a [customized Bootstrap](https://medium.com/@tacomanator/customizing-create-react-app-aa9ffb88165) that follows these steps.
+
 ## Adding Flow
 
 Flow is a static type checker that helps you write code with fewer bugs. Check out this [introduction to using static types in JavaScript](https://medium.com/@preethikasireddy/why-use-static-types-in-javascript-part-1-8382da1e0adb) if you are new to this concept.
@@ -583,11 +634,12 @@ Recent versions of [Flow](http://flowtype.org/) work with Create React App proje
 
 To add Flow to a Create React App project, follow these steps:
 
-1. Run `npm install --save-dev flow-bin`.
+1. Run `npm install --save-dev flow-bin` (or `yarn add --dev flow-bin`).
 2. Add `"flow": "flow"` to the `scripts` section of your `package.json`.
-3. Add `// @flow` to any files you want to type check (for example, to `src/App.js`).
+3. Run `npm run flow -- init` (or `yarn flow -- init`) to create a [`.flowconfig` file](https://flowtype.org/docs/advanced-configuration.html) in the root directory.
+4. Add `// @flow` to any files you want to type check (for example, to `src/App.js`).
 
-Now you can run `npm run flow` to check the files for type errors.
+Now you can run `npm run flow` (or `yarn flow`) to check the files for type errors.
 You can optionally use an IDE like [Nuclide](https://nuclide.io/docs/languages/flow/) for a better integrated experience.
 In the future we plan to integrate it into Create React App even more closely.
 
@@ -603,13 +655,12 @@ default you will have `NODE_ENV` defined for you, and any other environment vari
 
 **The environment variables are embedded during the build time**. Since Create React App produces a static HTML/CSS/JS bundle, it can’t possibly read them at runtime. To read them at runtime, you would need to load HTML into memory on the server and replace placeholders in runtime, just like [described here](#injecting-data-from-the-server-into-the-page). Alternatively you can rebuild the app on the server anytime you change them.
 
->Note: You must create custom environment variables beginning with `REACT_APP_`. Any other variables except `NODE_ENV` will be ignored to avoid accidentally [exposing a private key on the machine that could have the same name](https://github.com/facebookincubator/create-react-app/issues/865#issuecomment-252199527).
+>Note: You must create custom environment variables beginning with `REACT_APP_`. Any other variables except `NODE_ENV` will be ignored to avoid accidentally [exposing a private key on the machine that could have the same name](https://github.com/facebookincubator/create-react-app/issues/865#issuecomment-252199527). Changing any environment variables will require you to restart the development server if it is running.
 
 These environment variables will be defined for you on `process.env`. For example, having an environment
-variable named `REACT_APP_SECRET_CODE` will be exposed in your JS as `process.env.REACT_APP_SECRET_CODE`, in addition
-to `process.env.NODE_ENV`.
+variable named `REACT_APP_SECRET_CODE` will be exposed in your JS as `process.env.REACT_APP_SECRET_CODE`.
 
->Note: Changing any environment variables will require you to restart the development server if it is running.
+There is also a special built-in environment variable called `NODE_ENV`. You can read it from `process.env.NODE_ENV`. When you run `npm start`, it is always equal to `'development'`, when you run `npm test` it is always equal to `'test'`, and when you run `npm run build` to make a production bundle, it is always equal to `'production'`. **You cannot override `NODE_ENV` manually.** This prevents developers from accidentally deploying a slow development build to production.
 
 These environment variables can be useful for displaying information conditionally based on where the project is
 deployed or consuming sensitive data that lives outside of version control.
@@ -643,6 +694,10 @@ When you load the app in the browser and inspect the `<input>`, you will see its
 </div>
 ```
 
+The above form is looking for a variable called `REACT_APP_SECRET_CODE` from the environment. In order to consume this
+value, we need to have it defined in the environment. This can be done using two ways: either in your shell or in
+a `.env` file. Both of these ways are described in the next few sections.
+
 Having access to the `NODE_ENV` is also useful for performing actions conditionally:
 
 ```js
@@ -651,9 +706,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 ```
 
-The above form is looking for a variable called `REACT_APP_SECRET_CODE` from the environment. In order to consume this
-value, we need to have it defined in the environment. This can be done using two ways: either in your shell or in
-a `.env` file.
+When you compile the app with `npm run build`, the minification step will strip out this condition, and the resulting bundle will be smaller.
 
 ### Referencing Environment Variables in the HTML
 
@@ -672,7 +725,7 @@ Note that the caveats from the above section apply:
 
 ### Adding Temporary Environment Variables In Your Shell
 
-Defining environment variables can vary between OSes. It's also important to know that this manner is temporary for the
+Defining environment variables can vary between OSes. It’s also important to know that this manner is temporary for the
 life of the shell session.
 
 #### Windows (cmd.exe)
@@ -813,6 +866,16 @@ Then, on the server, regardless of the backend you use, you can read `index.html
 
 If you use a Node server, you can even share the route matching logic between the client and the server. However duplicating it also works fine in simple cases.
 
+## Pre-Rendering into Static HTML Files
+
+If you’re hosting your `build` with a static hosting provider you can use [react-snapshot](https://www.npmjs.com/package/react-snapshot) to generate HTML pages for each route, or relative link, in your application. These pages will then seamlessly become active, or “hydrated”, when the JavaScript bundle has loaded.
+
+There are also opportunities to use this outside of static hosting, to take the pressure off the server when generating and caching routes.
+
+The primary benefit of pre-rendering is that you get the core content of each page _with_ the HTML payload—regardless of whether or not your JavaScript bundle successfully downloads. It also increases the likelihood that each route of your application will be picked up by search engines.
+
+You can read more about [zero-configuration pre-rendering (also called snapshotting) here](https://medium.com/superhighfives/an-almost-static-stack-6df0a2791319).
+
 ## Injecting Data from the Server into the Page
 
 Similarly to the previous section, you can leave some placeholders in the HTML that inject global variables, for example:
@@ -884,8 +947,8 @@ it('sums numbers', () => {
 });
 ```
 
-All `expect()` matchers supported by Jest are [extensively documented here](http://facebook.github.io/jest/docs/api.html#expect-value).<br>
-You can also use [`jest.fn()` and `expect(fn).toBeCalled()`](http://facebook.github.io/jest/docs/api.html#tobecalled) to create “spies” or mock functions.
+All `expect()` matchers supported by Jest are [extensively documented here](http://facebook.github.io/jest/docs/expect.html).<br>
+You can also use [`jest.fn()` and `expect(fn).toBeCalled()`](http://facebook.github.io/jest/docs/expect.html#tohavebeencalled) to create “spies” or mock functions.
 
 ### Testing Components
 
@@ -943,7 +1006,7 @@ it('renders welcome message', () => {
 });
 ```
 
-All Jest matchers are [extensively documented here](http://facebook.github.io/jest/docs/api.html#expect-value).<br>
+All Jest matchers are [extensively documented here](http://facebook.github.io/jest/docs/expect.html).<br>
 Nevertheless you can use a third-party assertion library like [Chai](http://chaijs.com/) if you want to, as described below.
 
 Additionally, you might find [jest-enzyme](https://github.com/blainekasten/enzyme-matchers) helpful to simplify your tests with readable matchers. The above `contains` code can be written simpler with jest-enzyme.
@@ -953,6 +1016,10 @@ expect(wrapper).toContainReact(welcome)
 ```
 
 To setup jest-enzyme with Create React App, follow the instructions for [initializing your test environment](#initializing-test-environment) to import `jest-enzyme`.
+
+```sh
+npm install --save-dev jest-enzyme
+```
 
 ```js
 // src/setupTests.js
@@ -1110,7 +1177,7 @@ For an example, a simple button component could have following states:
 
 Usually, it’s hard to see these states without running a sample app or some examples.
 
-Create React App doesn't include any tools for this by default, but you can easily add [React Storybook](https://github.com/kadirahq/react-storybook) to your project. **It is a third-party tool that lets you develop components and see all their states in isolation from your app**.
+Create React App doesn’t include any tools for this by default, but you can easily add [React Storybook](https://github.com/kadirahq/react-storybook) to your project. **It is a third-party tool that lets you develop components and see all their states in isolation from your app**.
 
 ![React Storybook Demo](http://i.imgur.com/7CIAWpB.gif)
 
@@ -1145,14 +1212,30 @@ You can turn your React app into a [Progressive Web App](https://developers.goog
 
 ## Deployment
 
-`npm run build` creates a `build` directory with a production build of your app. Set up your favourite HTTP server so that a visitor to your site is served `index.html`, and requests to static paths like `/static/js/main.<hash>.js` are served with the contents of the `/static/js/main.<hash>.js` file. For example, Python contains a built-in HTTP server that can serve static files:
+`npm run build` creates a `build` directory with a production build of your app. Set up your favourite HTTP server so that a visitor to your site is served `index.html`, and requests to static paths like `/static/js/main.<hash>.js` are served with the contents of the `/static/js/main.<hash>.js` file.
+
+### Static Server
+
+For environments using [Node](https://nodejs.org/), the easiest way to handle this would be to install [serve](https://github.com/zeit/serve) and let it handle the rest:
 
 ```sh
-cd build
-python -m SimpleHTTPServer 9000
+npm install -g serve
+serve -s build
 ```
 
-If you're using [Node](https://nodejs.org/) and [Express](http://expressjs.com/) as a server, it might look like this:
+The last command shown above will serve your static site on the port **5000**. Like many of [serve](https://github.com/zeit/serve)’s internal settings, the port can be adjusted using the `-p` or `--port` flags.
+
+Run this command to get a full list of the options available:
+
+```sh
+serve -h
+```
+
+### Other Solutions
+
+You don’t necessarily need a static server in order to run a Create React App project in production. It works just as fine integrated into an existing dynamic one.
+
+Here’s a programmatic example using [Node](https://nodejs.org/) and [Express](http://expressjs.com/):
 
 ```javascript
 const express = require('express');
@@ -1168,7 +1251,9 @@ app.get('/', function (req, res) {
 app.listen(9000);
 ```
 
-Create React App is not opinionated about your choice of web server. Any static file server will do. The `build` folder with static assets is the only output produced by Create React App.
+The choice of your server software isn’t important either. Since Create React App is completely platform-agnostic, there’s no need to explicitly use Node.
+
+The `build` folder with static assets is the only output produced by Create React App.
 
 However this is not quite enough if you use client-side routing. Read the next section if you want to support URLs like `/todos/42` in your single-page app.
 
@@ -1186,6 +1271,17 @@ This is because when there is a fresh page load for a `/todos/42`, the server lo
    res.sendFile(path.join(__dirname, './build', 'index.html'));
  });
 ```
+
+If you’re using [Apache](https://httpd.apache.org/), you need to create a `.htaccess` file in the `public` folder that looks like this:
+
+```
+    Options -MultiViews
+    RewriteEngine On
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.html [QSA,L]
+```
+
+It will get copied to the `build` folder when you run `npm run build`.
 
 Now requests to `/todos/42` will be handled correctly both in development and in production.
 
@@ -1218,9 +1314,9 @@ See [this](https://medium.com/@to_pe/deploying-create-react-app-on-microsoft-azu
 
 ### Firebase
 
-Install the Firebase CLI if you haven't already by running `npm install -g firebase-tools`. Sign up for a [Firebase account](https://console.firebase.google.com/) and create a new project. Run `firebase login` and login with your previous created Firebase account.
+Install the Firebase CLI if you haven’t already by running `npm install -g firebase-tools`. Sign up for a [Firebase account](https://console.firebase.google.com/) and create a new project. Run `firebase login` and login with your previous created Firebase account.
 
-Then run the `firebase init` command from your project's root. You need to choose the **Hosting: Configure and deploy Firebase Hosting sites** and choose the Firebase project you created in the previous step. You will need to agree with `database.rules.json` being created, choose `build` as the public directory, and also agree to **Configure as a single-page app** by replying with `y`.
+Then run the `firebase init` command from your project’s root. You need to choose the **Hosting: Configure and deploy Firebase Hosting sites** and choose the Firebase project you created in the previous step. You will need to agree with `database.rules.json` being created, choose `build` as the public directory, and also agree to **Configure as a single-page app** by replying with `y`.
 
 ```sh
     === Project Setup
@@ -1325,7 +1421,7 @@ Then run:
 npm run deploy
 ```
 
-#### Step 4: Ensure your project's settings use `gh-pages`
+#### Step 4: Ensure your project’s settings use `gh-pages`
 
 Finally, make sure **GitHub Pages** option in your GitHub project settings is set to use the `gh-pages` branch:
 
@@ -1337,7 +1433,7 @@ You can configure a custom domain with GitHub Pages by adding a `CNAME` file to 
 
 #### Notes on client-side routing
 
-GitHub Pages doesn't support routers that use the HTML5 `pushState` history API under the hood (for example, React Router using `browserHistory`). This is because when there is a fresh page load for a url like `http://user.github.io/todomvc/todos/42`, where `/todos/42` is a frontend route, the GitHub Pages server returns 404 because it knows nothing of `/todos/42`. If you want to add a router to a project hosted on GitHub Pages, here are a couple of solutions:
+GitHub Pages doesn’t support routers that use the HTML5 `pushState` history API under the hood (for example, React Router using `browserHistory`). This is because when there is a fresh page load for a url like `http://user.github.io/todomvc/todos/42`, where `/todos/42` is a frontend route, the GitHub Pages server returns 404 because it knows nothing of `/todos/42`. If you want to add a router to a project hosted on GitHub Pages, here are a couple of solutions:
 
 * You could switch from using HTML5 history API to routing with hashes. If you use React Router, you can switch to `hashHistory` for this effect, but the URL will be longer and more verbose (for example, `http://user.github.io/todomvc/#/todos/42?_k=yknaj`). [Read more](https://github.com/reactjs/react-router/blob/master/docs/guides/Histories.md#histories) about different history implementations in React Router.
 * Alternatively, you can use a trick to teach GitHub Pages to handle 404 by redirecting to your `index.html` page with a special redirect parameter. You would need to add a `404.html` file with the redirection code to the `build` folder before deploying your project, and you’ll need to add code handling the redirect parameter to `index.html`. You can find a detailed explanation of this technique [in this guide](https://github.com/rafrex/spa-github-pages).
@@ -1347,19 +1443,38 @@ GitHub Pages doesn't support routers that use the HTML5 `pushState` history API 
 Use the [Heroku Buildpack for Create React App](https://github.com/mars/create-react-app-buildpack).<br>
 You can find instructions in [Deploying React with Zero Configuration](https://blog.heroku.com/deploying-react-with-zero-configuration).
 
-#### Resolving "Module not found: Error: Cannot resolve 'file' or 'directory'"
+#### Resolving Heroku Deployment Errors
 
-Sometimes `npm run build` works locally but fails during deploy via Heroku with an error like this:
+Sometimes `npm run build` works locally but fails during deploy via Heroku. Following are the most common cases.
 
-```  
+##### "Module not found: Error: Cannot resolve 'file' or 'directory'"
+
+If you get something like this:
+
+```
 remote: Failed to create a production build. Reason:
 remote: Module not found: Error: Cannot resolve 'file' or 'directory'
-MyDirectory in /tmp/build_1234/src  
+MyDirectory in /tmp/build_1234/src
 ```
 
-This means you need to ensure that the lettercase of the file or directory you `import` matches the one you see on your filesystem or on GitHub.
+It means you need to ensure that the lettercase of the file or directory you `import` matches the one you see on your filesystem or on GitHub.
 
 This is important because Linux (the operating system used by Heroku) is case sensitive. So `MyDirectory` and `mydirectory` are two distinct directories and thus, even though the project builds locally, the difference in case breaks the `import` statements on Heroku remotes.
+
+##### "Could not find a required file."
+
+If you exclude or ignore necessary files from the package you will see a error similar this one:
+
+```
+remote: Could not find a required file.
+remote:   Name: `index.html`
+remote:   Searched in: /tmp/build_a2875fc163b209225122d68916f1d4df/public
+remote:
+remote: npm ERR! Linux 3.13.0-105-generic
+remote: npm ERR! argv "/tmp/build_a2875fc163b209225122d68916f1d4df/.heroku/node/bin/node" "/tmp/build_a2875fc163b209225122d68916f1d4df/.heroku/node/bin/npm" "run" "build"
+```
+
+In this case, ensure that the file is there with the proper lettercase and that’s not ignored on your local `.gitignore` or `~/.gitignore_global`.
 
 ### Modulus
 
@@ -1367,7 +1482,7 @@ See the [Modulus blog post](http://blog.modulus.io/deploying-react-apps-on-modul
 
 ## Netlify
 
-**To do a manual deploy to Netlify's CDN:**
+**To do a manual deploy to Netlify’s CDN:**
 
 ```sh
 npm install netlify-cli
@@ -1396,7 +1511,27 @@ When you build the project, Create React App will place the `public` folder cont
 
 ### Now
 
-See [this example](https://github.com/xkawi/create-react-app-now) for a zero-configuration single-command deployment with [now](https://zeit.co/now).
+[now](https://zeit.co/now) offers a zero-configuration single-command deployment.
+
+1. Install the `now` command-line tool either via the recommended [desktop tool](https://zeit.co/download) or via node with `npm install -g now`.
+
+2. Install `serve` by running `npm install --save serve`.
+
+3. Add this line to `scripts` in `package.json`:
+    
+    ```
+    "now-start": "serve build/",
+    ```
+    
+4. Run `now` from your project directory. You will see a **now.sh** URL in your output like this:
+    
+    ```
+    > Ready! https://your-project-dirname-tpspyhtdtk.now.sh (copied to clipboard)
+    ```
+    
+    Paste that URL into your browser when the build is complete, and you will see your deployed app.
+
+Details are available in [this article.](https://zeit.co/blog/now-static)
 
 ### S3 and CloudFront
 
@@ -1404,21 +1539,12 @@ See this [blog post](https://medium.com/@omgwtfmarc/deploying-create-react-app-t
 
 ### Surge
 
-Install the Surge CLI if you haven't already by running `npm install -g surge`. Run the `surge` command and log in you or create a new account. You just need to specify the *build* folder and your custom domain, and you are done.
+Install the Surge CLI if you haven’t already by running `npm install -g surge`. Run the `surge` command and log in you or create a new account.
+
+When asked about the project path, make sure to specify the `build` folder, for example:
 
 ```sh
-              email: email@domain.com
-           password: ********
        project path: /path/to/project/build
-               size: 7 files, 1.8 MB
-             domain: create-react-app.surge.sh
-             upload: [====================] 100%, eta: 0.0s
-   propagate on CDN: [====================] 100%
-               plan: Free
-              users: email@domain.com
-         IP Address: X.X.X.X
-
-    Success! Project is published and running at create-react-app.surge.sh
 ```
 
 Note that in order to support routers that use HTML5 `pushState` API, you may want to rename the `index.html` in your build folder to `200.html` before deploying to Surge. This [ensures that every URL falls back to that file](https://surge.sh/help/adding-a-200-page-for-client-side-routing).
@@ -1448,6 +1574,7 @@ If this doesn’t happen, try one of the following workarounds:
 * Some editors like Vim and IntelliJ have a “safe write” feature that currently breaks the watcher. You will need to disable it. Follow the instructions in [“Working with editors supporting safe write”](https://webpack.github.io/docs/webpack-dev-server.html#working-with-editors-ides-supporting-safe-write).
 * If your project path contains parentheses, try moving the project to a path without them. This is caused by a [Webpack watcher bug](https://github.com/webpack/watchpack/issues/42).
 * On Linux and macOS, you might need to [tweak system settings](https://webpack.github.io/docs/troubleshooting.html#not-enough-watchers) to allow more watchers.
+* If the project runs inside a virtual machine such as (a Vagrant provisioned) VirtualBox, create an `.env` file in your project directory if it doesn’t exist, and add `CHOKIDAR_USEPOLLING=true` to it. This ensures that the next time you run `npm start`, the watcher uses the polling mode, as necessary inside a VM.
 
 If none of these solutions help please leave a comment [in this thread](https://github.com/facebookincubator/create-react-app/issues/659).
 
@@ -1471,7 +1598,7 @@ brew reinstall watchman
 
 You can find [other installation methods](https://facebook.github.io/watchman/docs/install.html#build-install) on the Watchman documentation page.
 
-If this still doesn't help, try running `launchctl unload -F ~/Library/LaunchAgents/com.github.facebook.watchman.plist`.
+If this still doesn’t help, try running `launchctl unload -F ~/Library/LaunchAgents/com.github.facebook.watchman.plist`.
 
 There are also reports that *uninstalling* Watchman fixes the issue. So if nothing else helps, remove it from your system and try again.
 
@@ -1482,7 +1609,7 @@ It is reported that `npm run build` can fail on machines with no swap space, whi
 ### `npm run build` fails on Heroku
 
 This may be a problem with case sensitive filenames.
-Please refer to [this section](#resolving-module-not-found-error-cannot-resolve-file-or-directory).
+Please refer to [this section](#resolving-heroku-deployment-errors).
 
 ## Something Missing?
 

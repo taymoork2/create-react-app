@@ -5,7 +5,10 @@ Create React apps with no build configuration.
 * [Getting Started](#getting-started) – How to create a new app.
 * [User Guide](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md) – How to develop apps bootstrapped with Create React App.
 
-## tl;dr
+Create React App works on macOS, Windows, and Linux.<br>
+If something doesn’t work please [file an issue](https://github.com/facebookincubator/create-react-app/issues/new).
+
+## Quick Overview
 
 ```sh
 npm install -g create-react-app
@@ -19,6 +22,13 @@ Then open [http://localhost:3000/](http://localhost:3000/) to see your app.<br>
 When you’re ready to deploy to production, create a minified bundle with `npm run build`.
 
 <img src='https://camo.githubusercontent.com/506a5a0a33aebed2bf0d24d3999af7f582b31808/687474703a2f2f692e696d6775722e636f6d2f616d794e66434e2e706e67' width='600' alt='npm start'>
+
+### Get Started Immediately
+
+You **don’t** need to install or configure tools like Webpack or Babel.<br>
+They are preconfigured and hidden so that you can focus on the code.
+
+Just create a project, and you’re good to go.
 
 ## Getting Started
 
@@ -34,7 +44,7 @@ npm install -g create-react-app
 
 **We strongly recommend to use Node >= 6 and npm >= 3 for faster installation speed and better disk usage.** You can use [nvm](https://github.com/creationix/nvm#usage) to easily switch Node versions between different projects.
 
-**This tool doesn’t assume a Node backend**. The Node installation is only required for the build tools that rely on it locally, such as Webpack and Babel.
+**This tool doesn’t assume a Node backend**. The Node installation is only required for Create React App itself.
 
 ### Creating an App
 
@@ -104,13 +114,14 @@ The [User Guide](https://github.com/facebookincubator/create-react-app/blob/mast
 - [Supported Language Features and Polyfills](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#supported-language-features-and-polyfills)
 - [Syntax Highlighting in the Editor](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#syntax-highlighting-in-the-editor)
 - [Displaying Lint Output in the Editor](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#displaying-lint-output-in-the-editor)
+- [Debugging in the Editor](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#debugging-in-the-editor)
 - [Changing the Page `<title>`](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#changing-the-page-title)
 - [Installing a Dependency](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#installing-a-dependency)
 - [Importing a Component](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#importing-a-component)
 - [Adding a Stylesheet](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#adding-a-stylesheet)
 - [Post-Processing CSS](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#post-processing-css)
 - [Adding a CSS Preprocessor (Sass, Less etc.)](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#adding-a-css-preprocessor-sass-less-etc)
-- [Adding Images and Fonts](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#adding-images-and-fonts)
+- [Adding Images, Fonts, and Files](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#adding-images-fonts-and-files)
 - [Using the `public` Folder](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#using-the-public-folder)
 - [Using Global Variables](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#using-global-variables)
 - [Adding Bootstrap](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#adding-bootstrap)
@@ -121,6 +132,7 @@ The [User Guide](https://github.com/facebookincubator/create-react-app/blob/mast
 - [Proxying API Requests in Development](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#proxying-api-requests-in-development)
 - [Using HTTPS in Development](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#using-https-in-development)
 - [Generating Dynamic `<meta>` Tags on the Server](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#generating-dynamic-meta-tags-on-the-server)
+- [Pre-Rendering into Static HTML Files](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#pre-rendering-into-static-html-files)
 - [Running Tests](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#running-tests)
 - [Developing Components in Isolation](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#developing-components-in-isolation)
 - [Making a Progressive Web App](https://github.com/facebookincubator/create-react-app/blob/master/packages/react-scripts/template/README.md#making-a-progressive-web-app)
@@ -138,7 +150,7 @@ Please refer to the [User Guide](https://github.com/facebookincubator/create-rea
 
 * **One Dependency:** There is just one build dependency. It uses Webpack, Babel, ESLint, and other amazing projects, but provides a cohesive curated experience on top of them.
 
-* **Convention over Configuration:** You don't need to configure anything by default. Reasonably good configuration of both development and production builds is handled for you so you can focus on writing code.
+* **No Configuration Required:** You don't need to configure anything. Reasonably good configuration of both development and production builds is handled for you so you can focus on writing code.
 
 * **No Lock-In:** You can “eject” to a custom setup at any time. Run a single command, and all the configuration and build dependencies will be moved directly into your project, so you can pick up right where you left off.
 
@@ -197,6 +209,11 @@ All of them are transitive dependencies of the provided npm package.
 
 We'd love to have your helping hand on `create-react-app`! See [CONTRIBUTING.md](CONTRIBUTING.md) for more information on what we're looking for and how to get started.
 
+## React Native
+
+Looking for something similar, but for React Native?<br>
+Check out [Create React Native App](https://github.com/react-community/create-react-native-app/).
+
 ## Acknowledgements
 
 We are grateful to the authors of existing related projects for their ideas and collaboration:
@@ -211,7 +228,7 @@ If you don’t agree with the choices made in this project, you might want to ex
 Some of the more popular and actively maintained ones are:
 
 * [insin/nwb](https://github.com/insin/nwb)
-* [mozilla/neo](https://github.com/mozilla/neo)
+* [mozilla-neutrino/neutrino-dev](https://github.com/mozilla-neutrino/neutrino-dev)
 * [NYTimes/kyt](https://github.com/NYTimes/kyt)
 * [zeit/next.js](https://github.com/zeit/next.js)
 * [gatsbyjs/gatsby](https://github.com/gatsbyjs/gatsby)
